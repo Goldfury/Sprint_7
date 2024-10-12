@@ -1,3 +1,4 @@
+import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @RunWith(Parameterized.class)
 public class OrderTestParameterized {
     private final String colors;
+    private final Faker faker = new Faker();
 
     public OrderTestParameterized(final String colors) {
         this.colors = colors;
@@ -38,24 +40,24 @@ public class OrderTestParameterized {
     @DisplayName("Создание заказа с разными расцветками самокатов")
     public void testCreateOrder() {
         Order order = new Order(
-                "goldy",
-                "goldy",
-                "Улица пушкина дом колотушкино",
-                "Метро Люблино",
-                "87089214128",
-                1,
+                faker.name().firstName(),
+                faker.name().lastName(),
+                faker.address().streetAddress(),
+                faker.address().city(),
+                faker.phoneNumber().phoneNumber(),
+                faker.number().numberBetween(1, 10),
                 "07.10.2024",
-                "Метро люблино",
+                faker.address().cityName(),
                 colors.split(",")
         );
-        Response response = CreateOrder(order);
+        Response response = createOrder(order);
         compareStatusCode(response, 201);
         compareBodyCreateOrder(response);
     }
 
 
     @Step("создание заказа")
-    public Response CreateOrder(Order order) {
+    public Response createOrder(Order order) {
         return given()
                 .header("Content-type", "application/json")
                 .and()
